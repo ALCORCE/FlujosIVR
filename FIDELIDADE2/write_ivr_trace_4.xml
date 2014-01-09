@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vxml version="2.0" xmlns="http://www.w3.org/2001/vxml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/2001/vxml http://www.w3.org/TR/voicexml20/vxml.xsd">
+
+<script>
+//<![CDATA[
+
+    var DataSource = "";
+    var CallID = "";
+    var SUBFLOWDESC = "";
+    var SUBCCNO = 1;
+    var VDN = 6;
+    var ACCESSSNO = "917164931";
+    var FLOWDESC = "Pavones";
+	var FLAG= 0;
+
+
+	var today1=new Date();
+	var day = today1.getDate();
+	var month = today1.getMonth() + 1;
+	var year = today1.getYear() + 1900;
+
+	month = month < 10?"0"+month:month;
+	day = day <10?"0"+day:day;
+	strDate = year+month+day;
+
+	var hours = today1.getHours(); 
+	var minutes = today1.getMinutes(); 
+	var seconds = today1.getSeconds(); 
+	hours = hours<10?"0"+hours:hours;
+	minutes=minutes<10?"0"+minutes:minutes;
+	seconds=seconds<0?"0"+seconds:seconds;
+	strTime=hours+":"+minutes+":"+seconds;
+	
+//]]>
+</script>
+
+	<var name="varCallID"/>
+    <form id="Start">
+		<object name="GetCallID" classid="method://huawei/Other/GetCallID ">
+			<param name="CallID" expr="varCallID"/>
+		</object>
+        <var name="PARAM_DataSource"/>
+        <var name="Param_SUBFLOWDESC"/>
+		<var name="Param_FLAG"/>
+        <block>
+    		<assign name="DataSource" expr="PARAM_DataSource"/>
+    		<assign name="SUBFLOWDESC" expr="Param_SUBFLOWDESC"/>
+			<assign name="FLAG" expr="Param_FLAG"/>
+            <goto next="#DBAccess_0"/>
+        </block>
+    </form>
+    <form id="SubflowReturn_0">
+        <block>
+            <return/>
+        </block>
+    </form>
+    <form id="DBAccess_0">
+        <catch event="object.dbproc.failed">
+            <goto next="#SubflowReturn_0"/>
+        </catch>
+
+        <var name="Param_Date" expr="Object()"/>
+        <var name="Param_Time" expr="Object()"/>
+        <var name="Param_Called" expr="Object()"/>
+        <var name="Param_Caller" expr="Object()"/>
+        <var name="Param_CallID" expr="Object()"/>
+        <var name="Param_SUBFLOWDESC" expr="Object()"/>
+        <var name="Param_SUBCCNO" expr="Object()"/>
+        <var name="Param_VDN" expr="Object()"/>
+        <var name="Param_AccesssNo" expr="Object()"/>
+        <var name="Param_FLOWDESC" expr="Object()"/>
+		<var name="Param_FLAG" expr="Object()"/>
+    	<block>
+            <assign name="Param_Date.type" expr="'String'"/>
+            <assign name="Param_Date.value" expr="strDate"/>
+            <assign name="Param_Date.inout" expr="0"/>
+            <assign name="Param_Date.size" expr="40"/>
+            <assign name="Param_Time.type" expr="'String'"/>
+            <assign name="Param_Time.value" expr="strTime"/>
+            <assign name="Param_Time.inout" expr="0"/>
+            <assign name="Param_Time.size" expr="40"/>
+            <assign name="Param_Called.type" expr="'String'"/>
+            <assign name="Param_Called.value" expr="session.telephone.dnis"/>
+            <assign name="Param_Called.inout" expr="0"/>
+            <assign name="Param_Called.size" expr="40"/>
+            <assign name="Param_Caller.type" expr="'String'"/>
+            <assign name="Param_Caller.value" expr="session.telephone.ani"/>
+            <assign name="Param_Caller.inout" expr="0"/>
+            <assign name="Param_Caller.size" expr="40"/>
+            <assign name="Param_CallID.type" expr="'String'"/>
+            <assign name="Param_CallID.value" expr="varCallID"/>
+            <assign name="Param_CallID.inout" expr="0"/>
+            <assign name="Param_CallID.size" expr="40"/>
+            <assign name="Param_SUBFLOWDESC.type" expr="'String'"/>
+            <assign name="Param_SUBFLOWDESC.value" expr="SUBFLOWDESC"/>
+            <assign name="Param_SUBFLOWDESC.inout" expr="0"/>
+            <assign name="Param_SUBFLOWDESC.size" expr="100"/>
+            <assign name="Param_SUBCCNO.type" expr="'INT_2'"/>
+            <assign name="Param_SUBCCNO.value" expr="SUBCCNO"/>
+            <assign name="Param_SUBCCNO.inout" expr="0"/>
+            <assign name="Param_VDN.type" expr="'INT_2'"/>
+            <assign name="Param_VDN.value" expr="VDN"/>
+            <assign name="Param_VDN.inout" expr="0"/>
+            <assign name="Param_AccesssNo.type" expr="'String'"/>
+            <assign name="Param_AccesssNo.value" expr="ACCESSSNO"/>
+            <assign name="Param_AccesssNo.inout" expr="0"/>
+            <assign name="Param_AccesssNo.size" expr="40"/>
+            <assign name="Param_FLOWDESC.type" expr="'String'"/>
+            <assign name="Param_FLOWDESC.value" expr="FLOWDESC"/>
+            <assign name="Param_FLOWDESC.inout" expr="0"/>
+            <assign name="Param_FLOWDESC.size" expr="40"/>
+	     <assign name="Param_FLAG.type" expr="'INT_2'"/>
+            <assign name="Param_FLAG.value" expr="FLAG"/>
+            <assign name="Param_FLAG.inout" expr="0"/>
+    	</block>
+
+		<block>
+			<log>************************ CALLID:   <value expr="Param_CallID.value"/>***********************</log>
+			<log>************************ VDN:     <value expr="Param_VDN.value"/>***********************</log>
+			<log>************************ Date:    <value expr="Param_Date.value"/>***********************</log>
+			<log>************************ StrDate:    <value expr="strDate"/>***********************</log>
+			<log>************************ Time:    <value expr="Param_Time.value"/>***********************</log>
+			<log>************************ Called:   <value expr="Param_Called.value"/>***********************</log>
+			<log>************************ Caller:   <value expr="Param_Caller.value"/>***********************</log>
+			<log>************************ SUBFLOWDESC:  <value expr="Param_SUBFLOWDESC.value"/>***********************</log>
+			<log>************************ FLOWDESC:  <value expr="Param_FLOWDESC.value"/>***********************</log>
+			<log>************************ AcessNo:  <value expr="Param_AccesssNo.value"/>***********************</log>
+			<log>************************ Flag:  <value expr="Param_FLAG.value"/>***********************</log>	
+		</block>
+		
+
+        <object name="dbproc"  classid="method://huawei/Db/DbExecProc">
+           <param name="DataSource" expr="DataSource"/>
+            <param name="ProcName" expr="'P_DAYLOG_IVRTRACE'"/>
+			<!--<param name="ExProcID" expr="'-1'"/>-->
+            <param name="Delay" expr="6"/>     
+            <param name="param1" expr="Param_Date"/>
+            <param name="param2" expr="Param_Time"/>
+            <param name="param3" expr="Param_Called"/>
+            <param name="param4" expr="Param_Caller"/>
+            <param name="param5" expr="Param_CallID"/>
+            <param name="param6" expr="Param_SUBFLOWDESC"/>
+            <param name="param7" expr="Param_SUBCCNO"/>
+            <param name="param8" expr="Param_VDN"/>
+            <param name="param9" expr="Param_AccesssNo"/>
+            <param name="param10" expr="Param_FLOWDESC"/>
+			<param name="param11" expr="Param_FLAG"/>
+            <filled>
+				 <if cond="'FAILURE'==dbproc">
+					<log>Execute  dbproc fail</log>       
+					<exit/>
+				</if>
+				<log>Execute  dbproc Success</log>   
+                <goto next="#SubflowReturn_0"/>
+            </filled>    
+        </object>
+    </form>
+</vxml>

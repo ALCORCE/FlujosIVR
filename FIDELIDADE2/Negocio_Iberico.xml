@@ -1,0 +1,209 @@
+﻿<?xml version = "1.0" encoding = "utf-8" ?>
+<vxml xmlns = "http://www.w3.org/2001/vxml"
+	  xmlns:xsd = "http://www.w3.org/2001/XMLSchema-instance" 
+	  version = "2.0" xml:lang = "en-US" application="rootflow.vxml">
+	
+	<!-- Obtiene la informacion del llamante, VDN, SubCCNo ... -->
+	<form id="GetInformacionLlamada">
+	
+		<block>
+			<log>Called<value expr="session.telephone.ani"/></log>  
+			<log>Flow Access<value expr="session.telephone.dnis"/></log> 
+			<log>Fecha: <value expr="strDateTime"/></log>
+		</block>
+	
+		<object name="getcurssp" classid="method://huawei/Other/GetCurSSP">
+		   <param name="SSP" expr="varSSP"/>
+			<filled>
+				<log>the current SSP is :<value expr="varSSP"/> </log>
+			</filled>
+		</object>
+		
+		<object name="getcallinfo" classid="method://huawei/Other/GetHexCallInfo">
+			<param name="SSP" expr="varSSP"/>
+			<param name="CallID" expr="varCallID"/>
+			<param name="SubCCNO" expr="varSubCCNO"/>
+			<filled>
+				<if cond="getcallinfo != 'SUCCESS'">
+					<throw event="exit"/>
+				</if>
+				<log>the CallID is :<value expr="varCallID"/></log>
+				<log>the SubCCNO is :<value expr="varSubCCNO"/></log>
+				<goto next="#ComprobarServicio"/>
+			</filled>
+		</object>
+	</form>
+	
+	<!-- Menu en/fuera horario servicio -->
+	<!--
+		Fuera de servicio agrupa los siguientes casos:
+		
+		1) Día Festivo -> Se comprueba en el array FESTIVOS si el día es festivo nacional
+						  Cambiar el array festivos del flujo rootflow.vxml si se desea añadir o quitar alguno
+									  
+		2) Fuera horario comercial en base a:
+			2.1) Sábados y Domingos
+			2.2) De Lunes a Viernes fuera del horario comercial (8:00 - 18:00)
+	
+	!-->
+	<form id="ComprobarServicio">
+		<block>		
+			<!-- Comprobar si es día festivo -->
+			<if cond="isHoliday(strDateFormatEU)">
+				<goto next="#Fuera_Servicio"/>
+			<else/>	
+				<!-- Comprobar si es fin de semana -->					
+				<if cond="isWeekend(day_of_week)">
+					<goto next="#Fuera_Servicio"/>				
+				<else/>					
+					<!-- Comprobar si está dentro del horario comercial -->
+					<if cond="hours &gt; workBeginTime || hours == workBeginTime">
+						<if cond="hours &lt; workEndTime">							
+							<goto next="#En_Servicio"/>						
+						<else/>
+							<goto next="#Fuera_Servicio"/>
+						</if>					
+					<else/>	
+						<goto next="#Fuera_Servicio"/>
+					</if>
+				</if>
+			</if>
+		</block>
+	</form>
+	
+	<!-- Menu DTMF Servicio -->
+	<!--
+		1 - COTIZACIONES PROPERTY
+		2 - COTIZACIONES RESP. CIVIL
+		3 - COTIZACIONES OTROS
+	-->
+	
+	<form id="En_Servicio">
+
+		<!-- DTMF para captar la opción del cliente -->
+		<field name="dtmf_skill">
+			<property name="inputmodes" value="dtmf"/>
+			<property name="bargein" value="false"/>		
+			<property name="maxdigit" value="1"/>
+			<property name="mindigit" value="1"/>
+			<property name="timeout" value="20"/>
+			<grammar src="builtin:dtmf/digits" mode="dtmf"/>
+			<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_11"/></prompt>
+			<noinput count="1">
+				<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_11"/></prompt>
+			</noinput>
+			<noinput count="2">
+				<assign name="Skill_Enrutar" expr="Skill_NGIIndus"/>
+				<log><value expr="Skill_Enrutar"/></log>
+				<goto next="#Transferir_Cola"/>
+			</noinput>
+			<filled>				
+				<if cond="dtmf_skill=='1'">
+					<assign name="Intentos" expr="2"/>
+					<assign name="Skill_Enrutar" expr="Skill_NGIIndus"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>
+				<elseif cond="dtmf_skill=='2'"/>
+					<assign name="Intentos" expr="2"/>
+					<assign name="Skill_Enrutar" expr="Skill_NGIRespCivil"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>
+				<elseif cond="dtmf_skill=='3'"/>
+					<assign name="Intentos" expr="2"/>
+					<assign name="Skill_Enrutar" expr="Skill_NGIComercio"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>	
+				<elseif cond="dtmf_skill=='4'"/>
+					<assign name="Intentos" expr="2"/>
+					<assign name="Skill_Enrutar" expr="Skill_NGIFlotas"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>
+				<elseif cond="dtmf_skill=='5'"/>
+					<assign name="Intentos" expr="2"/>
+					<assign name="Skill_Enrutar" expr="Skill_NGITranspts"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>
+				<elseif cond="dtmf_skill=='6'"/>
+					<assign name="Intentos" expr="2"/>
+					<assign name="Skill_Enrutar" expr="Skill_NGIColVidaAcc"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>
+				<elseif cond="dtmf_skill=='7'"/>
+					<assign name="Intentos" expr="2"/>
+					<assign name="Skill_Enrutar" expr="Skill_NGIMontajes"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>
+				<elseif cond="dtmf_skill=='8'"/>
+					<assign name="Intentos" expr="2"/>
+					<assign name="Skill_Enrutar" expr="Skill_NGIConPort"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>	
+				<else/>
+					<if cond="Intentos=='1'">
+						<assign name="Skill_Enrutar" expr="Skill_NGIIndus"/>
+						<log><value expr="Skill_Enrutar"/></log>
+						<goto next="#Transferir_Cola"/>					
+					<else/>
+						<assign name="Intentos" expr="Intentos-1"/>
+						<goto next="#En_Servicio"/>
+					</if>			
+				</if> 
+			</filled>
+		</field>
+	</form>	
+		
+		
+	<form id="Transferir_Cola">
+
+		<object name="RequestSkillqueue" classid="method://huawei/CallExtend/RequestForRoute">			
+			<param name="RouteInfo" expr="Skill_Enrutar"/>
+			<param name="RequestType" expr="2"/>
+			<filled>
+				<if cond="'FAILURE' == RequestSkillqueue">
+					<goto next="rootflow.vxml#NOAGENTS"/>
+				</if>
+			</filled>
+		</object>
+		<object name="QueryDevice" classid="method://huawei/CallExtend/QueryDevice">
+			<filled>
+				<if cond="'FAILURE' == QueryDevice">
+					<goto next="rootflow.vxml#NOAGENTS"/>
+				<else/>
+					<!-- Saltamos a transferir la llamada a la cola -->
+					<goto next="#Transferir_Llamada"/>
+				</if>
+			</filled>
+		</object>		
+	</form>
+	
+	<form id="Transferir_Llamada">
+	
+		<object name="Transfer" classid="method://huawei/CallExtend/TransferCall">
+			<param name="TransferType" expr="0"/>
+			<filled>
+				<if cond="'SUCCESS' == Transfer">
+					<!-- Se recupera la llamada de la cola -->
+	
+					<log>SUCESS TRANSFER</log>
+				<else/>
+					<!-- Termina la llamada -->					
+
+					<log>FAILURE TRANSFER</log>
+					
+					<exit/>
+				</if>
+			</filled>
+		</object>
+
+	</form>
+
+	<!-- Fuera de horario -->
+
+	<form id="Fuera_Servicio">
+		<block>
+			<prompt bargein="false"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_13_1"/></prompt>
+			<goto next="rootflow.vxml#Release_END"/>
+		</block>
+	</form>	
+
+</vxml>

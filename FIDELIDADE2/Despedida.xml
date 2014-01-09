@@ -1,0 +1,43 @@
+<?xml version = "1.0" encoding = "utf-8" ?>
+<vxml xmlns = "http://www.w3.org/2001/vxml"
+	  xmlns:xsd = "http://www.w3.org/2001/XMLSchema-instance" 
+	  version = "2.0" xml:lang = "en-US" application="rootflow.vxml">
+	
+	<!-- Obtiene la informacion del llamante, VDN, SubCCNo ... -->
+	<form id="GetInformacionLlamada">
+	
+		<block>
+			<log>Called<value expr="session.telephone.ani"/></log>  
+			<log>Flow Access<value expr="session.telephone.dnis"/></log> 
+			<log>Fecha: <value expr="strDateTime"/></log>
+		</block>
+	
+		<object name="getcurssp" classid="method://huawei/Other/GetCurSSP">
+		   <param name="SSP" expr="varSSP"/>
+			<filled>
+				<log>the current SSP is :<value expr="varSSP"/> </log>
+			</filled>
+		</object>
+		
+		<object name="getcallinfo" classid="method://huawei/Other/GetHexCallInfo">
+			<param name="SSP" expr="varSSP"/>
+			<param name="CallID" expr="varCallID"/>
+			<param name="SubCCNO" expr="varSubCCNO"/>
+			<filled>
+				<if cond="getcallinfo != 'SUCCESS'">
+					<throw event="exit"/>
+				</if>
+				<log>the CallID is :<value expr="varCallID"/></log>
+				<log>the SubCCNO is :<value expr="varSubCCNO"/></log>
+				<goto next="#gracias_por_llamar"/>
+			</filled>
+		</object>
+	</form>
+	
+	<form id="gracias_por_llamar">
+	<block>
+		<prompt bargein="false"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_15"/></prompt>
+		<goto next="rootflow.vxml#Release_END"/>
+	</block>
+	</form>
+</vxml>

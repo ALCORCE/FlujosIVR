@@ -1,0 +1,50 @@
+<?xml version = "1.0" encoding = "utf-8" ?>
+<vxml xmlns = "http://www.w3.org/2001/vxml"
+	  xmlns:xsd = "http://www.w3.org/2001/XMLSchema-instance" 
+	  version = "2.0" xml:lang = "en-US" application="rootflow_fidelidade2.vxml">
+	
+	<form id="Transferir_Cola">
+
+		<object name="RequestSkillqueue" classid="method://huawei/CallExtend/RequestForRoute">			
+			<param name="RouteInfo" expr="'SINEmprCom'"/>
+			<param name="RequestType" expr="2"/>
+			<filled>
+				<if cond="'FAILURE' == RequestSkillqueue">
+					<goto next="rootflow_fidelidade2.vxml#NOAGENTS"/>
+				</if>
+			</filled>
+		</object>
+		<object name="QueryDevice" classid="method://huawei/CallExtend/QueryDevice">
+			<filled>
+				<if cond="'FAILURE' == QueryDevice">
+					<goto next="rootflow_fidelidade2.vxml#NOAGENTS"/>
+				<else/>
+					<!-- Saltamos a transferir la llamada a la cola -->
+					<goto next="#Transferir_Llamada"/>
+				</if>
+			</filled>
+		</object>		
+	</form>
+	
+	<form id="Transferir_Llamada">
+	
+		<object name="Transfer" classid="method://huawei/CallExtend/TransferCall">
+			<param name="TransferType" expr="0"/>
+			<filled>
+				<if cond="'SUCCESS' == Transfer">
+					<!-- Se recupera la llamada de la cola -->
+	
+					<log>SUCESS TRANSFER</log>
+				<else/>
+					<!-- Termina la llamada -->					
+
+					<log>FAILURE TRANSFER</log>
+					
+					<exit/>
+				</if>
+			</filled>
+		</object>
+
+	</form>
+	
+</vxml>
