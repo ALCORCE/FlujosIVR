@@ -1,0 +1,383 @@
+<?xml version = "1.0" encoding = "utf-8" ?>
+<vxml xmlns = "http://www.w3.org/2001/vxml"
+	  xmlns:xsd = "http://www.w3.org/2001/XMLSchema-instance" 
+	  version = "2.0" xml:lang = "en-US" application="rootflow.vxml">
+	
+	<!-- Obtiene la informacion del llamante, VDN, SubCCNo ... -->
+	<form id="GetInformacionLlamada">
+	
+		<block>
+			<log>Called<value expr="session.telephone.ani"/></log>  
+			<log>Flow Access<value expr="session.telephone.dnis"/></log> 
+			<log>Fecha: <value expr="strDateTime"/></log>
+		</block>
+	
+		<object name="getcurssp" classid="method://huawei/Other/GetCurSSP">
+		   <param name="SSP" expr="varSSP"/>
+			<filled>
+				<log>the current SSP is :<value expr="varSSP"/> </log>
+			</filled>
+		</object>
+		
+		<object name="getcallinfo" classid="method://huawei/Other/GetHexCallInfo">
+			<param name="SSP" expr="varSSP"/>
+			<param name="CallID" expr="varCallID"/>
+			<param name="SubCCNO" expr="varSubCCNO"/>
+			<filled>
+				<if cond="getcallinfo != 'SUCCESS'">
+					<throw event="exit"/>
+				</if>
+				<log>the CallID is :<value expr="varCallID"/></log>
+				<log>the SubCCNO is :<value expr="varSubCCNO"/></log>
+				<goto next="#ComprobarServicio"/>
+			</filled>
+		</object>
+	</form>
+
+	<!-- Menu en/fuera horario servicio -->
+	<!--
+		Fuera de servicio agrupa los siguientes casos:
+		
+		1) DíFestivo -> Se comprueba en el array FESTIVOS si el díes festivo nacional
+						  Cambiar el array festivos del flujo rootflow.vxml si se desea añr o quitar alguno
+									  
+		2) Fuera horario comercial en base a:
+			2.1) Sádos y Domingos
+			2.2) De Lunes a Viernes fuera del horario comercial (8:00 - 18:00)
+	
+	!-->
+
+	<!-- ANI en horario -->
+	<var name="ANI_en_horario" expr="'648288364'"/>
+	<var name="ANI_en_horario_susana" expr="'636746954'"/>
+	<var name="ANI_en_horario_jesus" expr="'690848234'"/>
+	<var name="ANI_en_horario_anibal" expr="'608897408'"/>
+	<var name="ANI_en_horario_david" expr="'646275517'"/>
+	<var name="ANI_en_horario_JA" expr="'619932315'"/>
+
+	<form id="ComprobarServicio">
+		<block>
+
+		<!-- Poner en horario en el ANI determinado -->		
+		<if cond="ANI_en_horario==session.telephone.ani || ANI_en_horario_susana==session.telephone.ani ||
+				  ANI_en_horario_jesus==session.telephone.ani || ANI_en_horario_anibal==session.telephone.ani ||
+				  ANI_en_horario_david==session.telephone.ani || ANI_en_horario_JA==session.telephone.ani">
+			<goto next="#Transferir_Siniestros"/>
+		</if>
+	
+			<!-- Comprobar si es día festivo -->
+			<if cond="isHoliday(strDateFormatEU)">
+				<goto next="#Fuera_Servicio"/>
+			<else/>	
+				<!-- Comprobar si es fin de semana -->					
+				<if cond="isWeekend(day_of_week)">
+					<goto next="#Fuera_Servicio"/>				
+				<else/>					
+					<!-- Comprobar si estáentro del horario comercial -->
+					<if cond="hours &gt; workBeginTime || hours == workBeginTime">
+						<if cond="hours &lt; workEndTime">							
+							<goto next="#Transferir_Siniestros"/>						
+						<else/>
+							<goto next="#Fuera_Servicio"/>
+						</if>					
+					<else/>	
+						<goto next="#Fuera_Servicio"/>
+					</if>
+				</if>
+			</if>
+		</block>
+	</form>
+
+
+	<!-- MENU PRINCIPAL DE SINIESTROS -->
+	
+	<form id="Transferir_Siniestros">
+	
+		<!-- DTMF para captar la opción del cliente -->
+		<field name="dtmf_skill_siniestros">
+			<property name="inputmodes" value="dtmf"/>
+			<property name="bargein" value="false"/>		
+			<property name="maxdigit" value="1"/>
+			<property name="mindigit" value="1"/>
+			<property name="timeout" value="20"/>
+			<grammar src="builtin:dtmf/digits" mode="dtmf"/>
+			<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_8"/></prompt>
+			<noinput count="1">
+				<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_8"/></prompt>
+			</noinput>
+			<noinput count="2">
+				<goto next="rootflow.vxml#Release_END"/>
+			</noinput>
+			<filled>							
+				<!-- Asignar skill acorde a lo seleccionado -->
+				<if cond="dtmf_skill_siniestros=='1'">
+					<assign name="Intentos" expr="2"/>			
+					<goto next="#Transferir_Siniestros_Nivel2_Izquierda"/>							
+				<elseif cond="dtmf_skill_siniestros=='2'"/>
+					<assign name="Intentos" expr="2"/>
+					<assign name="Skill_Enrutar" expr="Skill_SINHogCom"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Siniestros_Nivel2_Derecha"/>					
+				<elseif cond="dtmf_skill_siniestros=='3'"/>
+					<assign name="Intentos" expr="2"/>
+					<assign name="Skill_Enrutar" expr="Skill_SINProtPagos"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>					
+				<elseif cond="dtmf_skill_siniestros=='4'"/>
+					<assign name="Intentos" expr="2"/>		
+					<assign name="Skill_Enrutar" expr="Skill_SINEmprCom"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Siniestros_Nivel2_Derecha"/>				
+				<elseif cond="dtmf_skill_siniestros=='5'"/>
+					<assign name="Intentos" expr="2"/>		
+					<assign name="Skill_Enrutar" expr="Skill_SINVidaAccd"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>				
+				<elseif cond="dtmf_skill_siniestros=='6'"/>
+					<assign name="Intentos" expr="2"/>	
+					<assign name="Skill_Enrutar" expr="Skill_SINRestosin"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>
+				<elseif cond="dtmf_skill_siniestros=='9'"/>
+                    <assign name="Intentos" expr="2"/>
+                    <assign name="Skill_Enrutar" expr="Skill_SINAutosSede"/>
+                    <log><value expr="Skill_Enrutar"/></log>
+                    <goto next="#Transferir_Cola"/>	
+				<else/>
+					<if cond="Intentos=='1'">
+						<goto next="rootflow.vxml#Release_END"/>			
+					<else/>
+						<assign name="Intentos" expr="Intentos-1"/>
+						<goto next="#Transferir_Siniestros"/>
+					</if>		
+				</if> 
+			</filled>
+		</field>
+	</form>
+	
+	<!-- MENU SEGUNDO NIVEL DE SINIESTROS PARTE IZQUIERDA -->
+	
+	<form id="Transferir_Siniestros_Nivel2_Izquierda">
+	
+		<!-- DTMF para captar la opción del cliente -->
+		<field name="dtmf_skill_siniestros_nivel2">
+			<property name="inputmodes" value="dtmf"/>
+			<property name="bargein" value="false"/>		
+			<property name="maxdigit" value="1"/>
+			<property name="mindigit" value="1"/>
+			<property name="timeout" value="20"/>
+			<grammar src="builtin:dtmf/digits" mode="dtmf"/>
+			<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_12_11_13_V1"/></prompt>
+			<noinput count="1">
+				<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_12_11_13_V1"/></prompt>
+			</noinput>
+			<noinput count="2">
+				<assign name="Skill_Enrutar" expr="Skill_SINConyCon"/>
+				<log><value expr="Skill_Enrutar"/></log>
+				<goto next="#Transferir_Cola"/>
+			</noinput>
+			<filled>							
+				<!-- Asignar skill acorde a lo seleccionado -->
+				<if cond="dtmf_skill_siniestros_nivel2=='1'">
+					<assign name="Intentos" expr="2"/>
+					<assign name="Skill_Enrutar" expr="Skill_SINAperSini"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>
+				<elseif cond="dtmf_skill_siniestros_nivel2=='2'"/>
+					<assign name="Intentos" expr="2"/>
+					<assign name="Skill_Enrutar" expr="Skill_SINLunas"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>			
+				<elseif cond="dtmf_skill_siniestros_nivel2=='3'"/>
+					<assign name="Intentos" expr="2"/>
+					<assign name="Skill_Enrutar" expr="Skill_SINLesiones"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>			
+				<elseif cond="dtmf_skill_siniestros_nivel2=='4'"/>
+					<assign name="Intentos" expr="2"/>
+					<assign name="Skill_Enrutar" expr="Skill_SINConyCon"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>			
+				<else/>
+					<if cond="Intentos=='1'">
+						<assign name="Skill_Enrutar" expr="Skill_SINConyCon"/>
+						<log><value expr="Skill_Enrutar"/></log>
+						<goto next="#Transferir_Cola"/>
+					<else/>
+						<assign name="Intentos" expr="Intentos-1"/>
+						<goto next="#Transferir_Siniestros_Nivel2_Izquierda"/>
+					</if>			
+				</if>
+			</filled>
+		</field>
+	</form>
+	
+	<!-- MENU SEGUNDO NIVEL DE SINIESTROS PARTE DERECHA -->
+
+	<form id="Transferir_Siniestros_Nivel2_Derecha">
+	
+		<!-- DTMF para captar la opción del cliente -->
+		<field name="dtmf_skill_siniestros_nivel2">
+			<property name="inputmodes" value="dtmf"/>
+			<property name="bargein" value="false"/>		
+			<property name="maxdigit" value="1"/>
+			<property name="mindigit" value="1"/>
+			<property name="timeout" value="20"/>
+			<grammar src="builtin:dtmf/digits" mode="dtmf"/>
+			<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_5"/></prompt>
+			<noinput count="1">
+				<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_5"/></prompt>				
+			</noinput>
+			<noinput count="2">
+				<goto next="rootflow.vxml#Release_END"/>
+			</noinput>
+			<filled>							
+				<!-- Asignar skill acorde a lo seleccionado -->
+				<if cond="dtmf_skill_siniestros_nivel2=='1'">
+					<assign name="Intentos" expr="2"/>
+					<assign name="Numero_Externo" expr="Multiasistencia"/>		
+					<goto next="#Transferencia_Externa"/>								
+				<elseif cond="dtmf_skill_siniestros_nivel2=='2'"/>
+					<assign name="Intentos" expr="2"/>
+					<assign name="Numero_Externo" expr="Multiasistencia"/>
+					<goto next="#Transferencia_Externa"/>
+				<elseif cond="dtmf_skill_siniestros_nivel2=='3'"/>
+					<assign name="Intentos" expr="2"/>
+					<goto next="#Transferir_Cola"/>					
+				<else/>
+					<if cond="Intentos=='1'">
+						<goto next="rootflow.vxml#Release_END"/>	
+					<else/>
+						<assign name="Intentos" expr="Intentos-1"/>
+						<goto next="#Transferir_Siniestros_Nivel2_Derecha"/>
+					</if>			
+				</if>
+			</filled>
+		</field>
+	</form>
+	
+	<form id="Transferir_Cola">
+
+		<object name="RequestSkillqueue" classid="method://huawei/CallExtend/RequestForRoute">			
+			<param name="RouteInfo" expr="Skill_Enrutar"/>
+			<param name="RequestType" expr="2"/>
+			<filled>
+				<if cond="'FAILURE' == RequestSkillqueue">
+					<prompt bargein="false"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_15"/></prompt>
+					<goto next="rootflow.vxml#Release_END"/>
+				</if>
+			</filled>
+		</object>
+		<object name="QueryDevice" classid="method://huawei/CallExtend/QueryDevice">
+			<filled>
+				<if cond="'FAILURE' == QueryDevice">
+					<prompt bargein="false"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_15"/></prompt>
+					<goto next="rootflow.vxml#Release_END"/>
+				<else/>
+					<!-- Saltamos a transferir la llamada a la cola -->
+					<goto next="#Transferir_Llamada"/>
+				</if>
+			</filled>
+		</object>		
+	</form>
+	
+	<form id="Transferir_Llamada">
+
+		<object name="Transfer" classid="method://huawei/CallExtend/TransferCall">
+			<param name="TransferType" expr="0"/>
+			<filled>
+				<if cond="'SUCCESS' == Transfer">
+					<!-- Se recupera la llamada de la cola -->
+	
+					<log>SUCESS TRANSFER</log>
+				<else/>
+					<!-- Termina la llamada -->					
+
+					<log>FAILURE TRANSFER</log>
+					
+					<exit/>
+				</if>
+			</filled>
+		</object>
+
+	</form>
+
+	
+<!-- *********************************** FUERA SERVICIO ************************************************ -->
+
+
+	<form id="Fuera_Servicio">
+		<field name="dtmf_fuera_servicio">
+			<property name="inputmodes" value="dtmf"/>
+			<property name="bargein" value="false"/>		
+			<property name="maxdigit" value="1"/>
+			<property name="mindigit" value="1"/>
+			<property name="timeout" value="20"/>
+			<grammar src="builtin:dtmf/digits" mode="dtmf"/>
+			
+			
+			<!-- TODO Definir exactamente el comportamiento de no pulsar/acceder erróneo -->
+			
+			<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_13"/></prompt>
+			<noinput count="1">
+				<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_13"/></prompt>
+			</noinput>
+			<noinput count="2">
+				<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_13"/></prompt>
+			</noinput>
+			<noinput count="3">
+				<goto next="rootflow.vxml#Release_END"/>
+			</noinput>
+			<filled>
+				<if cond="dtmf_fuera_servicio=='1'">
+					<assign name="Numero_Externo" expr="Multiasistencia"/>
+					<goto next="#Transferencia_Externa"/>
+				<elseif cond="dtmf_fuera_servicio=='2'"/>								
+					<assign name="Numero_Externo" expr="ACR"/>		
+					<goto next="#Transferencia_Externa"/>
+				<elseif cond="dtmf_fuera_servicio=='3'"/>
+					<assign name="Numero_Externo" expr="Mondial_Assistance"/>		
+					<goto next="#Transferencia_Externa"/>
+				<elseif cond="dtmf_fuera_servicio=='4'"/>			
+					<assign name="Numero_Externo" expr="ARAG"/>		
+					<goto next="#Transferencia_Externa"/>			
+				<elseif cond="dtmf_fuera_servicio=='5'"/>
+					<assign name="Numero_Externo" expr="Mondial_Assistance_2"/>		
+					<goto next="#Transferencia_Externa"/>	
+				<else/>
+					<if cond="Intentos=='1'">
+						<goto next="rootflow.vxml#Release_END"/>	
+					<else/>
+						<assign name="Intentos" expr="Intentos-1"/>
+						<goto next="#Fuera_Servicio"/>
+					</if>				
+				</if> 
+			</filled>
+		</field>
+	</form>
+	
+	<!-- Transferencia a número externo -->
+	<form id="Transferencia_Externa">
+
+		 <!-- Obtaining the SSP of the current call -->
+		<var name="VARSSP"/>
+		<object name="GetCurSSP" classid="method://huawei/Other/GetCurSSP">
+			<param name="SSP" expr="VARSSP"/>
+		</object>
+		<!-- Redirection -->
+		<object name="Redirect" classid="method://huawei/Call/Redirect">
+			<param name="SSP" expr="VARSSP"/>
+			<param name="CLD" expr="Numero_Externo"/>
+			<catch event="connection.disconnect.transfer">
+				<log label="Redirection is successful."></log>
+			</catch>
+			<filled>
+				<if cond="Redirect=='FAILURE'">
+					<log label="Redirection failed."></log>
+				</if>
+			</filled>
+		</object>
+
+	</form>
+
+</vxml>

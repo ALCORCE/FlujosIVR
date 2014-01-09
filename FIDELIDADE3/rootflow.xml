@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vxml version="2.0" xmlns="http://www.w3.org/2001/vxml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:schemaLocation="http://www.w3.org/2001/vxml http://www.w3.org/TR/voicexml20/vxml.xsd">
+	
+<script>
+
+<![CDATA[
+
+	var DataSource = "fidelidade_trace";
+	var today = new Date();
+	var fecha_hoy = today;
+	var day_of_week = today.getDay();
+	var day = today.getDate();
+	var month = today.getMonth() + 1;
+	var year = today.getYear() + 1900;
+	var hours = today.getHours();
+	var minutes = today.getMinutes();
+	var seconds = today.getSeconds();
+	var strDateTime = year+"-"+month+"-"+day+" "+hours+":"+minutes+":"+seconds;
+	var strDate =  year+""+month+""+day;
+	var strDateFormatEU = day+"-"+month+"-"+year;
+	var FechaFormatoDB = year+""+addZero(month)+""+addZero(day);
+		
+	var Festivo1="12-10-2013";
+	var Festivo2="1-11-2013";
+	var Festivo3="9-11-2013";
+	var Festivo4="6-12-2013";
+	var Festivo5="25-12-2013";
+	var Festivo6="1-1-2014";
+	var Festivo7="6-1-2014";
+	
+	function addZero(i)
+	{
+		if (i<10) 
+	    {
+	        i="0" + i;
+	    }
+		return i;
+	}
+	
+	function isWeekend(inputday)
+	{
+		if(inputday === 6 || inputday === 0)
+			return 1;
+	}
+	
+	function isHoliday(inputdate)
+	{
+		if (inputdate == Festivo1 || inputdate == Festivo2 || inputdate == Festivo3 || inputdate == Festivo4 || inputdate == Festivo5 || inputdate == Festivo6 || inputdate == Festivo7)
+            return 1;			
+	}
+	
+	function isValidTime(inputTime)
+	{
+		horas=inputTime.substring(0,2);
+		minutos=inputTime.substring(2,4);	
+		if (horas >= workBeginTime && horas < workEndTime)
+		{	
+			if (minutos >= 00 && minutos <60)
+				return 1;
+		}	
+	}
+	
+	function isValidPhone(inputPhone) 
+	{
+		var test = /^[689]\d{8}$/;
+		var telReg = new RegExp(test);
+		return telReg.test(inputPhone);
+	}
+	
+	function NextLaboralDay(fecha)
+    {   
+    var dia = fecha.getDate();
+	var mes = fecha.getMonth()+1;
+	var anio = fecha.getYear() + 1900;
+	
+	while (isHoliday(dia+"-"+mes+"-"+anio) || isWeekend(fecha.getDay()))
+	{
+	    mes = mes - 1;     
+		fecha = new Date(anio, mes, dia+1);
+		dia = fecha.getDate();
+		mes = fecha.getMonth()+1;
+		anio = fecha.getYear() + 1900;  
+	  } 
+    return  anio+""+addZero(mes)+""+addZero(dia); 
+    }
+	
+	function myCount(a){
+		return a+1;
+	}
+]]>
+</script>	
+
+	<!--	VARIABLES DE LLAMADA   -->
+	
+	<var name="strAccessCode"/>
+	<var name="strRoutingInfo"/>
+	<var name="intCount" expr="0"/>
+	<var name="varSSP"/>
+	<var name="varCallID"/>
+	<var name="result" />
+	<var name="serviceType" />
+	<var name="outputinfo"/>
+	<var name="collectTimeInfo"/>
+	<var name="collectPhoneInfo"/>
+	<var name="Intentos" expr="2"/>
+	
+	<!--	VARIABLES DE DATOS DEL FLUJO	-->
+
+	<var name="varSubCCNO"	 expr ="1"/>
+	<var name="varVdnID"	 expr ="6"/>   
+
+	<var name="workBeginTime" expr="8"/>
+	<var name="workEndTime" expr="18"/>		
+	
+	<!-- SKILLS DE LOS FLUJOS -->
+	
+	<var name="Skill_MEDSeguPart" expr="'MEDSeguPart'"/>
+	<var name="Skill_MEDSeguEmpr" expr="'MEDSeguEmpr'"/>
+	<var name="Skill_MEDRecbImpag" expr="'MEDRecbImpag'"/>
+	<var name="Skill_MEDAhorro" expr="'MEDAhorro'"/>
+	<var name="Skill_MEDMultiInd" expr="'MEDMultiInd'"/>
+	<var name="Skill_MEDRespCivil" expr="'MEDRespCivil'"/>
+	<var name="Skill_MEDComercio" expr="'MEDComercio'"/>
+	<var name="Skill_MEDRentas" expr="'MEDRentas'"/>
+	<var name="Skill_MEDAdminCom" expr="'MEDAdminCom'"/>
+	
+	<var name="Skill_CLICuestSalud" expr="'CLICuestSalud'"/>
+	<var name="Skill_CLIReciPrim" expr="'CLIReciPrim'"/>
+	<var name="Skill_CLISeguEmpre" expr="'CLISeguEmpre'"/>
+	<var name="Skill_CLISegAhorro" expr="'CLISegAhorro'"/>
+	<var name="Skill_CLISeguPers" expr="'CLISeguPers'"/>
+
+	<var name="Skill_SINAperSini" expr="'SINAperSini'"/>
+	<var name="Skill_SINLunas" expr="'SINLunas'"/>
+	<var name="Skill_SINLesiones" expr="'SINLesiones'"/>
+	<var name="Skill_SINConyCon" expr="'SINConyCon'"/>
+	<var name="Skill_SINRestoAu" expr="'SINRestoAu'"/>
+	<var name="Skill_SINHogCom" expr="'SINHogCom'"/>
+	<var name="Skill_SINProtPagos" expr="'SINProtPagos'"/>
+	<var name="Skill_SINEmprCom" expr="'SINEmprCom'"/>
+	<var name="Skill_SINVidaAccd" expr="'SINVidaAccd'"/>
+	<var name="Skill_SINRestosin" expr="'SINRestosin'"/>
+	<var name="Skill_SINAutosSede" expr="'SINAutosSede'"/>
+	
+	<var name="Skill_CONAutos" expr="'CONAutos'"/>
+	<var name="Skill_CONHogCom" expr="'CONHogCom'"/>
+	<var name="Skill_CONOtrosSin" expr="'CONOtrosSin'"/>
+	<var name="Skill_CONAdminCom" expr="'CONAdminCom'"/>
+	<var name="Skill_CONOtrasCon" expr="'CONOtrasCon'"/>	
+		
+	<var name="Skill_BROPropty" expr="'BROPropty'"/>
+	<var name="Skill_BRORespCivil" expr="'BRORespCivil'"/>
+	<var name="Skill_BROOtros" expr="'BROOtros'"/>
+	
+	<var name="Skill_NGIIndus" expr="'NGIIndus'"/>
+	<var name="Skill_NGIRespCivil" expr="'NGIRespCivil'"/>
+	<var name="Skill_NGIComercio" expr="'NGIComercio'"/>
+	<var name="Skill_NGIFlotas" expr="'NGIFlotas'"/>
+	<var name="Skill_NGITranspts" expr="'NGITranspts'"/>
+	<var name="Skill_NGIColVidaAcc" expr="'NGIColVidaAcc'"/>
+	<var name="Skill_NGIMontajes" expr="'NGIMontajes'"/>
+	<var name="Skill_NGICotiPort" expr="'NGICotiPort'"/>
+	
+		<!-- SKILLS CONSOLIDADOS -->
+		
+	<var name="Skill_CONSRecibos" expr="'CONSRecibos'"/>
+	<var name="Skill_CONSEmpresa" expr="'CONSEmpresa'"/>
+	<var name="Skill_CONSAhorro" expr="'CONSAhorro'"/>
+	<var name="Skill_CONSParticulares" expr="'CONSParticulares'"/>
+	<var name="Skill_CONSIndustrial" expr="'CONSIndustrial'"/>
+	<var name="Skill_CONSRespCivil" expr="'CONSRespCivil'"/>
+	<var name="Skill_CONSComercio" expr="'CONSComercio'"/>
+	<var name="Skill_CONSAdminCom" expr="'CONSAdminCom'"/>
+
+	<!--	VARIABLES DE LOS MENSAJES A REPRODUCIR	-->
+	
+	<var name="DirectorioAudios" expr="'sounds/'"/>
+	<var name="FIDELIDADE_CONTESTADOR_1" expr="'FIDELIDADE_CONTESTADOR_1.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_2" expr="'FIDELIDADE_CONTESTADOR_2.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_3" expr="'FIDELIDADE_CONTESTADOR_3.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_4" expr="'FIDELIDADE_CONTESTADOR_4.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_5" expr="'FIDELIDADE_CONTESTADOR_5.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_6" expr="'FIDELIDADE_CONTESTADOR_6.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_7" expr="'FIDELIDADE_CONTESTADOR_7.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_8" expr="'FIDELIDADE_CONTESTADOR_8.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_9" expr="'FIDELIDADE_CONTESTADOR_9.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_10" expr="'FIDELIDADE_CONTESTADOR_10.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_11" expr="'FIDELIDADE_CONTESTADOR_11.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_12" expr="'FIDELIDADE_CONTESTADOR_12.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_13" expr="'FIDELIDADE_CONTESTADOR_13.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_13_1" expr="'FIDELIDADE_CONTESTADOR_13_1.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_14" expr="'FIDELIDADE_CONTESTADOR_14.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_14_1" expr="'FIDELIDADE_CONTESTADOR_14_1.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_15" expr="'FIDELIDADE_CONTESTADOR_15.wav'"/>
+	<var name="FIDELIDADE_MASTER_FINAL_120s" expr="'FIDELIDADE_MASTER_FINAL_120s.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_12_11_13_V1" expr="'FIDELIDADE_CONTESTADOR_12_11_13_V1.wav'"/>
+	<var name="FIDELIDADE_CONTESTADOR_12_11_13_V2" expr="'FIDELIDADE_CONTESTADOR_12_11_13_V2.wav'"/>
+	
+	<!--    VARIABLES CON LOS TELEFONOS DE LOS DESVIOS -->
+	
+	<var name="Multiasistencia" expr="'902130999'"/>
+	<var name="ACR" expr="'902130138'"/>
+	<var name="Mondial_Assistance" expr="'902106564'"/>
+	<var name="ARAG" expr="'902102321'"/>
+	<var name="Mondial_Assistance_2" expr="'902106572'"/>
+	
+<!-- Common events that are needed to be captured -->
+ 
+ 
+ <!--
+	Event handling if callee disconnect in between
+ -->
+ 
+	<catch event="connection.disconnect.hangup">
+		<goto next="#Release_END"/>
+	</catch>
+	
+<!--
+	Event handling if UAP return no resource error
+ -->
+ 
+	<catch event="error.noresource">
+		<goto next="#Release_END"/>
+	</catch>
+
+<!--
+	Event handling if error in fetching ini file
+
+	<catch event="error.badfetch">
+		<goto next="#SORRY_END"/>
+	</catch>
+	
+
+	Event handling if error in play error
+ -->
+
+	<catch event="error.platform.vperror">
+		<goto next="#END_END"/>
+	</catch>
+
+<!--
+	Event handling if error in play when call is disconnected
+ -->
+	<catch event="error.platform.speak">
+		<goto next="#END_END"/>
+	</catch>
+	
+<!--
+	Event handling for general error
+
+	<catch event="error">
+		<goto next="#SORRY_END"/>
+	</catch>
+	
+
+	Play Sorry And Release the Call
+
+	<form id="SORRY_END">
+		<block>
+			<prompt bargein="false">
+				<audio expr="FSDRIVE + Path+'AutoAttendant_Common_005.wav'">
+				</audio>
+			</prompt>
+		</block>
+		<block>
+			<goto next="#THANK_YOU"/>
+		</block>
+	</form>
+
+	Play Agent busy Release the Call
+
+	<form id="AGENT_BUSY">
+		<block>
+			<prompt bargein="false">
+				<audio expr="FSDRIVE + Path+'AutoAttendant_Common_006.wav'">
+				</audio>
+			</prompt>
+		</block>
+		<block>
+			<goto next="#THANK_YOU"/>
+		</block>
+	</form>
+
+
+	Release the Call
+ -->
+	<form id="Release_END">
+		<object name="Call_Release" classid="method://huawei/Call/Disconnect">
+			<param name="SSP" expr="varSSP"/>
+			<param name="Cause" value="0"/>
+			<filled>
+				<goto next="#END_END"/>
+			</filled>
+		</object>
+	</form>
+	
+<!--
+	END the vxml file after writting the CDR info
+ -->
+	<form id="END_END">
+		<block>
+			<exit/>
+		</block>
+	</form>
+</vxml>
