@@ -18,7 +18,9 @@ DESARROLLO:
 			
 		  Mapearemos en los flujos el atributo name del var declarado, es decir por ejemplo, 
 		  para la Skill BROPropty declarada en el WAS, utilizaremos el nombre Skill_BROPropty en el flujo Brokers.xml
-		  (nos permite cambiar la skill tantas veces como queramos sin tener que cambiar el flujo todo el rato)
+		  (nos permite cambiar el nombre de la skill del WAS tantas veces como queramos sin tener que cambiar el flujo todo el rato)
+		  
+		  En Brokers.xml:
 		  
 		  	<if cond="dtmf_skill=='1'">
 			<assign name="Intentos" expr="2"/>
@@ -26,8 +28,9 @@ DESARROLLO:
 			<log><value expr="Skill_Enrutar"/></log>			  <!-- OJO con comillas y dobles comillas en las declaraciones -->
 			<goto next="#Transferir_Cola"/>
 			
-			
-			
+
+
+
 DEPLOYMENT:
 			
 	1.- Renombrar todos los ficheros de .xml a .vxml		
