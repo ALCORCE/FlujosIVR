@@ -1,6 +1,7 @@
 DESARROLLO:
 
-1.- Definir variables globales en el fichero rootflow.vxml:
+
+1.- Definir variables globales y declaraciones globales en el fichero rootflow.vxml:
 
 	1.1.- Definir VDN, SubCCO (Mirar WAS para obtener los datos) y horario de inicio y fin de servicio (ambos inclusive). Ej:
 	
@@ -27,6 +28,12 @@ DESARROLLO:
 			<assign name="Skill_Enrutar" expr="Skill_BROPropty"/> <!-- Usamos el name declarado en la variable en rootflow.vxml -->
 			<log><value expr="Skill_Enrutar"/></log>			  <!-- OJO con comillas y dobles comillas en las declaraciones -->
 			<goto next="#Transferir_Cola"/>
+			
+	1.3.- Convertir audios con el programa goldwave al formato correcto (Ver imagen adjunta en la carpeta AYUDA)
+	
+	
+	
+	 
 			
 
 
