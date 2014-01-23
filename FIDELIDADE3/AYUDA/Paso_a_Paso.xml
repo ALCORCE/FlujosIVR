@@ -1,0 +1,33 @@
+DESARROLLO:
+
+1.- Definir variables globales en el fichero rootflow.vxml:
+
+	1.1.- Definir VDN, SubCCO (Mirar WAS para obtener los datos) y horario de inicio y fin de servicio (ambos inclusive). Ej:
+	
+			<var name="varSubCCNO"	 expr ="1"/>
+			<var name="varVdnID"	 expr ="6"/>   
+
+			<var name="workBeginTime" expr="8"/>
+			<var name="workEndTime" expr="18"/>	
+	
+	1.2.- Definir skills del VDN a utilizar. ej:
+	
+			<var name="Skill_BROPropty" expr="'BROPropty'"/>
+			<var name="Skill_BRORespCivil" expr="'BRORespCivil'"/>
+			<var name="Skill_BROOtros" expr="'BROOtros'"/>
+			
+		  Mapearemos en los flujos el atributo name del var declarado, es decir por ejemplo, 
+		  para la Skill BROPropty declarada en el WAS, utilizaremos el nombre Skill_BROPropty en el flujo Brokers.xml
+		  (nos permite cambiar la skill tantas veces como queramos sin tener que cambiar el flujo todo el rato)
+		  
+		  	<if cond="dtmf_skill=='1'">
+			<assign name="Intentos" expr="2"/>
+			<assign name="Skill_Enrutar" expr="Skill_BROPropty"/> <!-- Usamos el name declarado en la variable en rootflow.vxml -->
+			<log><value expr="Skill_Enrutar"/></log>			  <!-- OJO con comillas y dobles comillas en las declaraciones -->
+			<goto next="#Transferir_Cola"/>
+			
+			
+			
+DEPLOYMENT:
+			
+	1.- Renombrar todos los ficheros de .xml a .vxml		
