@@ -1,6 +1,5 @@
 DESARROLLO:
 
-
 1.- Definir variables globales y declaraciones globales en el fichero rootflow.vxml:
 
 	1.1.- Definir VDN, SubCCO (Mirar WAS para obtener los datos) y horario de inicio y fin de servicio (ambos inclusive). Ej:
@@ -29,15 +28,117 @@ DESARROLLO:
 			<log><value expr="Skill_Enrutar"/></log>			  <!-- OJO con comillas y dobles comillas en las declaraciones -->
 			<goto next="#Transferir_Cola"/>
 			
-	1.3.- Convertir audios con el programa goldwave al formato correcto (Ver imagen adjunta en la carpeta AYUDA)
+	1.3.- Convertir audios con el programa goldwave al formato correcto (FORMATO_AUDIOS_HUAWEI.jpg)
 	
+	1.4.- Mapear los audios del workspace con el flujo:
 	
+			<!-- Definimos 1º workspace y luego todos los audios con rutas relativas -->
 	
-	 
+			<var name="DirectorioAudios" expr="'sounds/'"/>
+			<var name="FIDELIDADE_CONTESTADOR_1" expr="'FIDELIDADE_CONTESTADOR_1.wav'"/>
+	
+	1.5.- Si hay teléfonos de desvío de llamada añadirlos, ej:
+	
+			<var name="Multiasistencia" expr="'902130999'"/>
+	
+2.- Desarrollar las funcionalidades requeridas en el flujo principal
+
+	2.1.- Partir flujo por niveles y machearlos con forms globales
+
+	Ejemplo de DTMF típico (explicadas partes esenciales en comentarios):
+	
+		<form id="En_Servicio">
+
+		<!-- DTMF para captar la opción del cliente -->
+		<field name="dtmf_skill">
+			<property name="inputmodes" value="dtmf"/>	<!-- Estándar, habilita DTMF -->
+			<property name="bargein" value="false"/>	<!-- false, no permite pulsaciones antes de terminar audio 
+															 true, permite pulsar antes de terminar audio.
+															 Se puede configurar en cada prompt o de forma general por form -->
+					
+			<property name="maxdigit" value="1"/>		<!-- Número de dígitos a capturar por DTMF -->
+			<property name="mindigit" value="1"/>
+			<property name="timeout" value="20"/>		<!-- Tiempo máximo de listening para captar un DTMF -->
+			<grammar src="builtin:dtmf/digits" mode="dtmf"/>
+			<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_12"/></prompt>	<!-- prompt es reproducir un fichero audio o TTS -->	
 			
-
-
+			<!-- noinput, excepción cuando no se ha capturado ningún dígito en el máximo timeout -->
+			<!-- con el atributo count, manejamos el número de la excepción (1º, 2º excepción ...) -->
+			
+			<noinput count="1">
+				<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_12"/></prompt>
+			</noinput>
+			<noinput count="2">
+				<assign name="Skill_Enrutar" expr="Skill_BROOtros"/>	<!-- Variable global para enrutar la llamada a la skill indicada en expr -->
+				<log><value expr="Skill_Enrutar"/></log>
+				<goto next="#Transferir_Cola"/>							<!-- Hacemos goto a la parte del flujo que se encarga de enrutar la llamada a la skill indicada en el punto anterior -->
+			</noinput>
+			<filled>													<!-- En el filled, definimos el comportamiento del flujo una vez recogido el DTMF -->
+				<if cond="dtmf_skill=='1'">								<!-- Lo más común es comparar un número con el DTMF obtenido y llevar a cabo una acción (enrute, desviar llamada, saltar a otra parte del flujo ...) -->
+					<assign name="Intentos" expr="2"/>
+					<assign name="Skill_Enrutar" expr="Skill_BROPropty"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>
+				<elseif cond="dtmf_skill=='2'"/>
+					<assign name="Intentos" expr="2"/>
+					<assign name="Skill_Enrutar" expr="Skill_BRORespCivil"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>
+				<elseif cond="dtmf_skill=='3'"/>
+					<assign name="Intentos" expr="2"/>
+					<assign name="Skill_Enrutar" expr="Skill_BROOtros"/>
+					<log><value expr="Skill_Enrutar"/></log>
+					<goto next="#Transferir_Cola"/>					
+				<else/>													<!-- Como else, aquí tenemos un ejemplo que permite máximo 2 intentos de captura DTMF -->
+					<if cond="Intentos=='1'">
+						<assign name="Skill_Enrutar" expr="Skill_BROOtros"/>	<!-- Si pulsa una opción no contemplada por 2º vez, enruta a una skill determinada -->
+						<log><value expr="Skill_Enrutar"/></log>
+						<goto next="#Transferir_Cola"/>					
+					<else/>
+						<assign name="Intentos" expr="Intentos-1"/>				<!-- Si pulsa una opción no contemplada la 1º vez, repite el menú  -->
+						<goto next="#En_Servicio"/>
+					</if>			
+				</if> 
+			</filled>
+		</field>
+	</form>	
 
 DEPLOYMENT:
 			
-	1.- Renombrar todos los ficheros de .xml a .vxml		
+	1.- Renombrar todos los ficheros de flujos de .xml a .vxml
+	
+	2.- Subir flujos y adios - Ahora mismo todos se encuentran en la máquina HPS
+		(10.26.62.115 en la ruta /home/vxml/tomcat6/webapps/Test1/release/vxml)
+
+		En concreto fidelidade, está desplegado de la siguiente manera:
+		
+			Skills directos de CosmoCom a Huawei --> /home/vxml/tomcat6/webapps/Test1/release/vxml/fidelidade
+			
+			Entorno final --> /home/vxml/tomcat6/webapps/Test1/release/vxml/Fidelidade 
+		
+		Credenciales --> su - vxml como root
+	
+	3.- Mapear los flujos en el WAS del tenant correspondiente. (Configuracion_Flujo.jpg)
+	
+		3.1.- Parametros:
+		
+				Flow File Name --> Ruta absoluta al flujo a través del tomcat --> Ejemplo: http://10.26.62.115:8080/Test1/release/vxml/Fidelidade/Despedida.vxml
+				Load --> Yes
+				Flow File Format --> Not specify
+				IVR Loaded with Flow --> Poner los 4 servidores IVR
+				
+	4.- Mapear flujos del WAS con los números externos en Called Party Configuration
+	
+DEBUGGING:
+
+	1.- En la vista del WAS del tenant, editamos el flow a debuggear y seleccionamos en el parámetro IVR Loaded with flow,
+		un servidor IVR a utilizar para debuggear (Debugear_Server.jpg) y apuntamos el parámetro IVR Flow Access code
+	
+	2.- Entramos en el server IVR que hemos elegido (10.26.62.X) y vamos a la ruta: /home/icd/icddir/log/30X/
+		El log donde se traza toda la llamada será ivr30X_trace.log
+		
+	3.- Para que aparezcan logs en dicho fichero, entramos a la herramienta ICDInsider (Maquina DB1)
+		y seleccionamos el servidor IVR para debugear (por la red interna por ejemplo, IVR1 10.25.109.16) --> Debugging_ICDInsider_ElegirIVR.jpg
+		Seleccionamos la pestaña Flow tracing, Trace Timely. Ponemos los datos de la VDN y el Flow Access Code anotado previamente --> Debugging_Flow.jpg
+		
+	4.- A partir de este punto, al realizar llamadas, deberán aparecer todas las trazas en el fichero ivr30X_trace.log
