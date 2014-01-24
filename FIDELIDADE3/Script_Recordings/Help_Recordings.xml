@@ -1,0 +1,13 @@
+Maquina Grabaciones --> 10.26.62.112 (usuario oracle)
+Path Scripts --> /opt/oracle/export_grabaciones
+
+--------------------------------------------------------------
+
+Explicación de cada uno de los scripts:
+
+	cron_grabaciones_diario.sh --> Trata grabación por grabación llamando a volcado_grabaciones.sh e inicializa directorios
+	volcado_grabaciones.sh --> Conversión de una grabación e introduce los datos de dicha grabación en el informe CSV generado
+	borrado_semanal_grabaciones.sh --> Borra todas las grabaciones de todos los tenants 
+
+	NOTA: En el fichero configuracion_cron.txt, se encuentra la configuración del cron para el usuario oracle con el que se ejecutan el volcado.
+	
