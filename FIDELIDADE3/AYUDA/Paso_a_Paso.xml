@@ -115,6 +115,8 @@ DEPLOYMENT:
 			Skills directos de CosmoCom a Huawei --> /home/vxml/tomcat6/webapps/Test1/release/vxml/fidelidade
 			
 			Entorno final --> /home/vxml/tomcat6/webapps/Test1/release/vxml/Fidelidade 
+			
+			dar permiso a los ficheros 755 > como usuario vxml  grupo users
 		
 		Credenciales --> su - vxml como root
 	
