@@ -1,7 +1,0 @@
-1.- Descargar fichero de idiomas de uno de los servidores de agente --> /home/elpis/tomcat6/webapps/agentclient/WEB-INF/i18n/zeus.xls
-2.- Descargar y cambiar la traducción del campo deseado.
-3.- Sustituir el fichero zeus.xls a la ruta /home/elpis/tomcat6/webapps/agentclient/WEB-INF/i18n/ en los 4 servidores de agente.
-4.- Cambiar permisos al fichero (755) y usuario y grupo (elpis:users) 
-5.- Borrar caché /home/elpis/tomcat6/work
-6.- Reiniciar tomcat6 (kill -9 "PID del proceso del tomcat")
-7.- Borrar caché del navegador 
