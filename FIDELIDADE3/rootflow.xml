@@ -62,7 +62,7 @@
 	
 	function isValidPhone(inputPhone) 
 	{
-		var test = /^[689]\d{8}$/;
+		var test = /^[6789]\d{8}$/;
 		var telReg = new RegExp(test);
 		return telReg.test(inputPhone);
 	}
@@ -83,7 +83,15 @@
 	  } 
     return  anio+""+addZero(mes)+""+addZero(dia); 
     }
-	
+    
+    function isAugust(inputmonth)
+    {
+        if (inputmonth == 8)
+        {
+            return 1;
+        }
+    }
+    
 	function myCount(a){
 		return a+1;
 	}
@@ -110,7 +118,8 @@
 	<var name="varVdnID"	 expr ="6"/>   
 
 	<var name="workBeginTime" expr="8"/>
-	<var name="workEndTime" expr="18"/>		
+	<var name="workEndTime" expr="18"/>
+	<var name="workEndTime_August" expr="15"/>
 	
 	<!-- SKILLS DE LOS FLUJOS -->
 	

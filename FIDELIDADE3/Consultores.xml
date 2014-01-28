@@ -72,17 +72,30 @@
 				<!-- Comprobar si es fin de semana -->					
 				<if cond="isWeekend(day_of_week)">
 					<goto next="#Fuera_Servicio"/>				
-				<else/>					
-					<!-- Comprobar si estáentro del horario comercial -->
-					<if cond="hours &gt; workBeginTime || hours == workBeginTime">
-						<if cond="hours &lt; workEndTime">							
-							<goto next="#Consultores"/>						
-						<else/>
+				<else/>
+					<!-- Comprobar si es Agosto para adecuar el horario de verano -->
+					<if cond="isAugust(month)">
+						<if cond="hours &gt; workBeginTime || hours == workBeginTime">
+							<if cond="hours &lt; workEndTime_August">						
+								<goto next="#En_Servicio"/>						
+							<else/>
+								<goto next="#Fuera_Servicio"/>
+							</if>					
+						<else/>	
 							<goto next="#Fuera_Servicio"/>
-						</if>					
-					<else/>	
-						<goto next="#Fuera_Servicio"/>
-					</if>
+						</if>							
+					<else/>		
+						<!-- Comprobar si estáentro del horario comercial -->
+						<if cond="hours &gt; workBeginTime || hours == workBeginTime">
+							<if cond="hours &lt; workEndTime">							
+								<goto next="#Consultores"/>						
+							<else/>
+								<goto next="#Fuera_Servicio"/>
+							</if>					
+						<else/>	
+							<goto next="#Fuera_Servicio"/>
+						</if>
+					</if>	
 				</if>
 			</if>
 		</block>
