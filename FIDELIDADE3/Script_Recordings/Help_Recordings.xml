@@ -11,3 +11,22 @@ Explicación de cada uno de los scripts:
 
 	NOTA: En el fichero configuracion_cron.txt, se encuentra la configuración del cron para el usuario oracle con el que se ejecutan el volcado.
 	
+--------------------------------------------------------------	
+	
+Pasos preparación scripts:
+	
+	En volcado_grabaciones.sh:
+	
+		1.- Configurar las variables de IP Servidor FTP (HOST), Usuario (USER) y Password (ADMIN)
+		2.- Crear carpeta DIR_TMP_CONVERTIDO donde se guardan las copias temporales del FileServer
+			con todos los permisos 777 y usuario y grupo adecuados
+	
+	En borrado_semanal_grabaciones.sh:
+	
+		1.- Configurar las variables de IP Servidor FTP (HOST), Usuario (USER) y Password (ADMIN)
+
+	Con el usuario oracle:
+	
+		Cargar en el cron de dicho usuario las 2 líneas del cron del fichero configuracion_cron.txt adjuntado
+		
+		

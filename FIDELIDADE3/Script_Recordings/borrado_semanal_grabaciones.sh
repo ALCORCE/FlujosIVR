@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Definir variables de FTP
+#Definir variables del servidor FTP donde se van a guardar las variables
 HOST='10.26.62.90'
 USER='Administrator'
 PASSWD='Admin1'
