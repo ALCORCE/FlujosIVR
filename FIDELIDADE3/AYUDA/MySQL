@@ -1,3 +1,6 @@
+para lo de CDR en EV, crear un depositorio mysql y crear usuario ICD_BI, sys
+
+
 Descarga MySQL Server --> https://dev.mysql.com/downloads/mysql/
 FrontEnd para configurar la DB. Ejemplos:
 
