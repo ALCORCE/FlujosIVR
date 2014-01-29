@@ -1,6 +1,6 @@
 1) Crear tabla donde serán guardados todos los datos referentes a la info que se desea guardar
 
-2) Crear procedimiento almacenado en la DB
+2) Crear procedimiento almacenado en la DB tomando como base la tabla previa
 
 3) Definir vxml que utiliza la API de Huawei para escribir en la DB en base a procedimientos almacenados:
 
