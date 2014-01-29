@@ -1,0 +1,19 @@
+1) Crear tabla donde serán guardados todos los datos referentes a la info que se desea guardar
+
+2) Crear procedimiento almacenado en la DB
+
+3) Definir vxml que utiliza la API de Huawei para escribir en la DB en base a procedimientos almacenados:
+
+<object name="dbproc"  classid="method://huawei/Db/DbExecProc">
+
+<!-- Parámetros del procedimiento -->
+
+	<param name="DataSource" expr="  ******** DATASOURCE DEFINIDO EN EL WAS PARA ESCRIBIR EN LA DB *********   "/>
+	<param name="ProcName" expr="' ******* NOMBRE DEL PROCEDIMIENTO ALMACENADO CREADO  ******** '"/>
+ 	<param name="param1" expr="....."/>
+    <param name="param2" expr="....."/>
+    
+    .....
+    
+    
+    
