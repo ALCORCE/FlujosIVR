@@ -272,7 +272,7 @@
 	</form>	
 
 <!-- *********************************** FUERA SERVICIO ************************************************ -->
-
+	
 	<form id="Fuera_Servicio">
 		<field name="dtmf_fuera_servicio">
 			<property name="inputmodes" value="dtmf"/>
@@ -283,17 +283,30 @@
 			<grammar src="builtin:dtmf/digits" mode="dtmf"/>
 			
 			<!-- TODO Definir exactamente el comportamiento de no pulsar/acceder erróneo -->
+			<if cond="isAugust(month)">
+				<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_14"/></prompt>
+				<noinput count="1">
+					<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_14"/></prompt>
+				</noinput>
+				<noinput count="2">
+					<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_14"/></prompt>
+				</noinput>
+				<noinput count="3">
+					<goto next="rootflow.vxml#Release_END"/>
+				</noinput>
+			<else/>
 			
-			<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_13"/></prompt>
-			<noinput count="1">
 				<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_13"/></prompt>
-			</noinput>
-			<noinput count="2">
-				<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_13"/></prompt>
-			</noinput>
-			<noinput count="3">
-				<goto next="rootflow.vxml#Release_END"/>
-			</noinput>
+				<noinput count="1">
+					<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_13"/></prompt>
+				</noinput>
+				<noinput count="2">
+					<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_13"/></prompt>
+				</noinput>
+				<noinput count="3">
+					<goto next="rootflow.vxml#Release_END"/>
+				</noinput>
+			</if>
 			<filled>
 				<if cond="dtmf_fuera_servicio=='1'">
 					<assign name="Numero_Externo" expr="Multiasistencia"/>

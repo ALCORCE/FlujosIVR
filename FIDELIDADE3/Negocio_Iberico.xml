@@ -79,10 +79,10 @@
 							<if cond="hours &lt; workEndTime_August">						
 								<goto next="#En_Servicio"/>						
 							<else/>
-								<goto next="#Fuera_Servicio"/>
+								<goto next="#Fuera_Servicio_Agosto"/>
 							</if>					
 						<else/>	
-							<goto next="#Fuera_Servicio"/>
+							<goto next="#Fuera_Servicio_Agosto"/>
 						</if>							
 					<else/>			
 						<!-- Comprobar si está dentro del horario comercial -->
@@ -227,7 +227,15 @@
 		</object>
 
 	</form>
+<!-- Fuera de horario Agosto-->
 
+	<form id="Fuera_Servicio_Agosto">
+		<block>
+			<prompt bargein="false"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_14_1"/></prompt>
+			<goto next="rootflow.vxml#Release_END"/>
+		</block>
+	</form>
+	
 	<!-- Fuera de horario -->
 
 	<form id="Fuera_Servicio">
