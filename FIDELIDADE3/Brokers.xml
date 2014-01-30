@@ -123,29 +123,29 @@
 				<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_12"/></prompt>
 			</noinput>
 			<noinput count="2">
-				<assign name="Skill_Enrutar" expr="Skill_BROOtros"/>
+				<assign name="Skill_Enrutar" expr="Skill_Cot-Comercio"/>
 				<log><value expr="Skill_Enrutar"/></log>
 				<goto next="#Transferir_Cola"/>
 			</noinput>
 			<filled>				
 				<if cond="dtmf_skill=='1'">
 					<assign name="Intentos" expr="2"/>
-					<assign name="Skill_Enrutar" expr="Skill_BROPropty"/>
+					<assign name="Skill_Enrutar" expr="Skill_Cot-Industrial"/>
 					<log><value expr="Skill_Enrutar"/></log>
 					<goto next="#Transferir_Cola"/>
 				<elseif cond="dtmf_skill=='2'"/>
 					<assign name="Intentos" expr="2"/>
-					<assign name="Skill_Enrutar" expr="Skill_BRORespCivil"/>
+					<assign name="Skill_Enrutar" expr="Skill_Cot-RespCivil"/>
 					<log><value expr="Skill_Enrutar"/></log>
 					<goto next="#Transferir_Cola"/>
 				<elseif cond="dtmf_skill=='3'"/>
 					<assign name="Intentos" expr="2"/>
-					<assign name="Skill_Enrutar" expr="Skill_BROOtros"/>
+					<assign name="Skill_Enrutar" expr="Skill_Cot-Comercio"/>
 					<log><value expr="Skill_Enrutar"/></log>
 					<goto next="#Transferir_Cola"/>					
 				<else/>
 					<if cond="Intentos=='1'">
-						<assign name="Skill_Enrutar" expr="Skill_BROOtros"/>
+						<assign name="Skill_Enrutar" expr="Skill_Cot-Comercio"/>
 						<log><value expr="Skill_Enrutar"/></log>
 						<goto next="#Transferir_Cola"/>					
 					<else/>
