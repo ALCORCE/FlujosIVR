@@ -143,7 +143,7 @@
 					<goto next="#Transferir_Siniestros_Nivel2_Derecha"/>				
 				<elseif cond="dtmf_skill_siniestros=='5'"/>
 					<assign name="Intentos" expr="2"/>		
-					<assign name="Skill_Enrutar" expr="Skill_SINVidaAccd"/>
+					<assign name="Skill_Enrutar" expr="Skill_SINVidaAcc"/>
 					<log><value expr="Skill_Enrutar"/></log>
 					<goto next="#Transferir_Cola"/>				
 				<elseif cond="dtmf_skill_siniestros=='6'"/>
