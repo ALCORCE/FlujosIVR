@@ -126,7 +126,7 @@
 				<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_1"/></prompt>
 			</noinput>
 			<noinput count="2">
-				<assign name="Skill_Enrutar" expr="Skill_CONSParticulares"/>
+				<assign name="Skill_Enrutar" expr="Skill_Particulares"/>
 				<log><value expr="Skill_Enrutar"/></log>
 				<goto next="#Transferir_Cola"/>
 			</noinput>
@@ -136,32 +136,32 @@
 					<goto next="#Transferir_Siniestros"/>
 				<elseif cond="dtmf_skill=='2'"/>
 					<assign name="Intentos" expr="2"/>
-					<assign name="Skill_Enrutar" expr="Skill_CLICuestSalud"/>
+					<assign name="Skill_Enrutar" expr="Skill_CuestSalud"/>
 					<log><value expr="Skill_Enrutar"/></log>
 					<goto next="#Transferir_Cola"/>
 				<elseif cond="dtmf_skill=='3'"/>
 					<assign name="Intentos" expr="2"/>
-					<assign name="Skill_Enrutar" expr="Skill_CONSRecibos"/>
+					<assign name="Skill_Enrutar" expr="Skill_Recibos"/>
 					<log><value expr="Skill_Enrutar"/></log>
 					<goto next="#Transferir_Cola"/>
 				<elseif cond="dtmf_skill=='4'"/>	
 					<assign name="Intentos" expr="2"/>	
-					<assign name="Skill_Enrutar" expr="Skill_CONSEmpresa"/>
+					<assign name="Skill_Enrutar" expr="Skill_Empresas"/>
 					<log><value expr="Skill_Enrutar"/></log>
 					<goto next="#Transferir_Cola"/>
 				<elseif cond="dtmf_skill=='5'"/>
 					<assign name="Intentos" expr="2"/>	
-					<assign name="Skill_Enrutar" expr="Skill_CONSAhorro"/>
+					<assign name="Skill_Enrutar" expr="Skill_AhorroRentas"/>
 					<log><value expr="Skill_Enrutar"/></log>
 					<goto next="#Transferir_Cola"/>
 				<elseif cond="dtmf_skill=='6'"/>
 					<assign name="Intentos" expr="2"/>		
-					<assign name="Skill_Enrutar" expr="Skill_CONSParticulares"/>
+					<assign name="Skill_Enrutar" expr="Skill_Particulares"/>
 					<log><value expr="Skill_Enrutar"/></log>
 					<goto next="#Transferir_Cola"/>						
 				<else/>
 					<if cond="Intentos=='1'">
-						<assign name="Skill_Enrutar" expr="Skill_CONSParticulares"/>
+						<assign name="Skill_Enrutar" expr="Skill_Particulares"/>
 						<log><value expr="Skill_Enrutar"/></log>
 						<goto next="#Transferir_Cola"/>					
 					<else/>
