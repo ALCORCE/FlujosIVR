@@ -128,17 +128,17 @@
 					<goto next="#Transferir_Siniestros_Nivel2_Izquierda"/>							
 				<elseif cond="dtmf_skill_siniestros=='2'"/>
 					<assign name="Intentos" expr="2"/>
-					<assign name="Skill_Enrutar" expr="Skill_SINHogCom"/>
+					<assign name="Skill_Enrutar" expr="Skill_SinHogar"/>
 					<log><value expr="Skill_Enrutar"/></log>
 					<goto next="#Transferir_Siniestros_Nivel2_Derecha"/>					
 				<elseif cond="dtmf_skill_siniestros=='3'"/>
 					<assign name="Intentos" expr="2"/>
-					<assign name="Skill_Enrutar" expr="Skill_SINProtPagos"/>
+					<assign name="Skill_Enrutar" expr="Skill_SinPagos"/>
 					<log><value expr="Skill_Enrutar"/></log>
 					<goto next="#Transferir_Cola"/>					
 				<elseif cond="dtmf_skill_siniestros=='4'"/>
 					<assign name="Intentos" expr="2"/>		
-					<assign name="Skill_Enrutar" expr="Skill_SINEmprCom"/>
+					<assign name="Skill_Enrutar" expr="Skill_SinEmpresa"/>
 					<log><value expr="Skill_Enrutar"/></log>
 					<goto next="#Transferir_Siniestros_Nivel2_Derecha"/>				
 				<elseif cond="dtmf_skill_siniestros=='5'"/>
@@ -148,7 +148,7 @@
 					<goto next="#Transferir_Cola"/>				
 				<elseif cond="dtmf_skill_siniestros=='6'"/>
 					<assign name="Intentos" expr="2"/>	
-					<assign name="Skill_Enrutar" expr="Skill_SINRestosin"/>
+					<assign name="Skill_Enrutar" expr="Skill_SinRespCivil"/>
 					<log><value expr="Skill_Enrutar"/></log>
 					<goto next="#Transferir_Cola"/>
 				<elseif cond="dtmf_skill_siniestros=='9'"/>
@@ -185,7 +185,7 @@
 				<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_12_11_13_V1"/></prompt>
 			</noinput>
 			<noinput count="2">
-				<assign name="Skill_Enrutar" expr="Skill_SINConyCon"/>
+				<assign name="Skill_Enrutar" expr="Skill_SinAutos_Resto"/>
 				<log><value expr="Skill_Enrutar"/></log>
 				<goto next="#Transferir_Cola"/>
 			</noinput>
@@ -193,27 +193,27 @@
 				<!-- Asignar skill acorde a lo seleccionado -->
 				<if cond="dtmf_skill_siniestros_nivel2=='1'">
 					<assign name="Intentos" expr="2"/>
-					<assign name="Skill_Enrutar" expr="Skill_SINAperSini"/>
+					<assign name="Skill_Enrutar" expr="Skill_SinAutos_APSiniestros"/>
 					<log><value expr="Skill_Enrutar"/></log>
 					<goto next="#Transferir_Cola"/>
 				<elseif cond="dtmf_skill_siniestros_nivel2=='2'"/>
 					<assign name="Intentos" expr="2"/>
-					<assign name="Skill_Enrutar" expr="Skill_SINLunas"/>
+					<assign name="Skill_Enrutar" expr="Skill_SinAutos_Lunas"/>
 					<log><value expr="Skill_Enrutar"/></log>
 					<goto next="#Transferir_Cola"/>			
 				<elseif cond="dtmf_skill_siniestros_nivel2=='3'"/>
 					<assign name="Intentos" expr="2"/>
-					<assign name="Skill_Enrutar" expr="Skill_SINLesiones"/>
+					<assign name="Skill_Enrutar" expr="Skill_SinAutos_Lesiones"/>
 					<log><value expr="Skill_Enrutar"/></log>
 					<goto next="#Transferir_Cola"/>			
 				<elseif cond="dtmf_skill_siniestros_nivel2=='4'"/>
 					<assign name="Intentos" expr="2"/>
-					<assign name="Skill_Enrutar" expr="Skill_SINConyCon"/>
+					<assign name="Skill_Enrutar" expr="Skill_SinAutos_Resto"/>
 					<log><value expr="Skill_Enrutar"/></log>
 					<goto next="#Transferir_Cola"/>			
 				<else/>
 					<if cond="Intentos=='1'">
-						<assign name="Skill_Enrutar" expr="Skill_SINConyCon"/>
+						<assign name="Skill_Enrutar" expr="Skill_SinAutos_Resto"/>
 						<log><value expr="Skill_Enrutar"/></log>
 						<goto next="#Transferir_Cola"/>
 					<else/>
