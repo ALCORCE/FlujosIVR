@@ -326,9 +326,6 @@
 			<property name="timeout" value="20"/>
 			<grammar src="builtin:dtmf/digits" mode="dtmf"/>
 			
-			
-			<!-- TODO Definir exactamente el comportamiento de no pulsar/acceder erróneo -->
-			
 			<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_14"/></prompt>
 			<noinput count="1">
 				<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_14"/></prompt>
@@ -375,10 +372,6 @@
 			<property name="mindigit" value="1"/>
 			<property name="timeout" value="20"/>
 			<grammar src="builtin:dtmf/digits" mode="dtmf"/>
-			
-			
-			<!-- TODO Definir exactamente el comportamiento de no pulsar/acceder erróneo -->
-			
 			<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_13"/></prompt>
 			<noinput count="1">
 				<prompt bargein="true"><audio expr="DirectorioAudios+FIDELIDADE_CONTESTADOR_13"/></prompt>
